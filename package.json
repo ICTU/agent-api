@@ -1,6 +1,6 @@
 {
   "name": "docker-dashboard-agent-api",
-  "version": "4.2.0-dev",
+  "version": "4.2.0",
   "description": "Implementation of the dashboard agent API.",
   "main": "index.coffee",
   "scripts": {
@@ -20,11 +20,12 @@
   "author": "ICTU",
   "license": "Apache-2.0",
   "dependencies": {
-    "express": "~4.13.3",
     "body-parser": "~1.14.1",
+    "dockerode": "^2.2.7",
+    "express": "~4.13.3",
+    "lodash": "^3.10.1",
     "passport": "^0.3.2",
     "passport-token-auth": "^0.1.2",
-    "lodash": "^3.10.1",
-    "dockerode": "^2.2.7"
+    "request": "^2.74.0"
   }
 }
