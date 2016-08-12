@@ -68,17 +68,14 @@ module.exports = (agentInfo) ->
 
   run = (action) -> (req, res) ->
     data = req.body
-    eventEmitter.emit action, data
-    res.status(200).end('thanks')
-
-  app.post '/app/install-and-run', authenticate, (req, res) ->
-    data = req.body
     if data.app and data.instance
       data.app._definition = data.app.definition
       data.app.definition = resolveParametersAndCreateSortedAppdef data.app._definition, data.app.parameter_key, data.instance.parameters
-      eventEmitter.emit 'start', data
+      eventEmitter.emit action, data
       res.status(200).end('thanks')
     else res.status(422).end 'appInfo not provided'
+
+  app.post '/app/install-and-run', authenticate, run('start')
 
   app.post '/app/start', authenticate, run('start')
   app.post '/app/stop', authenticate, run('stop')
