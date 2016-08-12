@@ -3,6 +3,47 @@ bodyParser      = require 'body-parser'
 passport        = require 'passport'
 TokenStrategy   = require('passport-token-auth').Strategy
 events          = require 'events'
+_               = require 'lodash'
+topsort         = require 'topsort'
+
+# gets all service names on which the passed service is depending
+getDependencies = (doc, service) ->
+  _.without _.union(
+      doc[service]?.links,
+      doc[service]?['volumes-from'],
+      doc[service]?['volumes_from'],
+      doc[service]?['depends_on'],
+      [service]
+    )
+  , undefined
+
+# returns an array with service dependencies, input for the topsort algorithm
+toTopsortArray = (doc) ->
+  arr = []
+  for service in Object.keys doc when service not in ['name', 'version', 'pic', 'description']
+    deps = getDependencies doc, service
+    arr = _.union arr, ([service, x] for x in deps)
+  arr
+
+# resolves all parameters in the application definition using the passed key/value-object
+resolveParams = (appDef, parameterKey, params)->
+  stringified = JSON.stringify appDef
+  for key, value of params
+    rex = new RegExp "#{parameterKey}#{key}#{parameterKey}", 'g'
+    stringified = stringified.replace rex, value
+  JSON.parse stringified
+
+resolveParametersAndCreateSortedAppdef = (appDef, parameterKey, params) ->
+  definition = resolveParams appDef, parameterKey, params
+  orderedServices = topsort(toTopsortArray definition).reverse()
+  services = {}
+  services.name = appDef.name
+  services.version = appDef.version
+  services.pic = appDef.pic
+  services.description = appDef.description
+  services[service] = definition[service] for service in orderedServices
+  services
+
 
 module.exports = (agentInfo) ->
   httpPort        = process.env.HTTP_PORT or 80
@@ -33,6 +74,8 @@ module.exports = (agentInfo) ->
   app.post '/app/install-and-run', authenticate, (req, res) ->
     data = req.body
     if data.app and data.instance
+      data.app._definition = data.app.definition
+      data.app.definition = resolveParametersAndCreateSortedAppdef data.app._definition, data.app.parameter_key, data.instance.parameters
       eventEmitter.emit 'start', data
       res.status(200).end('thanks')
     else res.status(422).end 'appInfo not provided'
