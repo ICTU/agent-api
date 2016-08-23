@@ -66,6 +66,14 @@ module.exports = (agentInfo) ->
   app.use bodyParser.urlencoded extended: false
   authenticate = passport.authenticate('token', { session: false })
 
+  emit = (action) -> (req, res) ->
+    eventEmitter.emit action, req.body, (err, data) ->
+      if err
+        console.error err
+        res.status(500).end('error')
+      else
+        res.status(200).end(JSON.stringify data)
+
   run = (action) -> (req, res) ->
     data = req.body
     if data.app and data.instance
@@ -79,6 +87,8 @@ module.exports = (agentInfo) ->
 
   app.post '/app/start', authenticate, run('start')
   app.post '/app/stop', authenticate, run('stop')
+
+  app.get '/storage/list', authenticate, emit '/storage/list'
 
   sendPong = (req, res) -> res.end('pong')
   app.get '/ping', sendPong
