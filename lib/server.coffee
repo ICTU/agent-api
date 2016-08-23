@@ -90,6 +90,7 @@ module.exports = (agentInfo) ->
 
   app.get '/storage/list', authenticate, emit '/storage/list'
   app.delete '/storage/:name', authenticate, emit '/storage/delete'
+  app.put '/storage', authenticate, emit '/storage/create'
 
   sendPong = (req, res) -> res.end('pong')
   app.get '/ping', sendPong
