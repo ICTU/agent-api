@@ -21,7 +21,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "body-parser": "~1.14.1",
-    "dockerode": "^2.2.7",
     "express": "~4.13.3",
     "lodash": "^3.10.1",
     "passport": "^0.3.2",
