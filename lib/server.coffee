@@ -20,27 +20,15 @@ getDependencies = (doc, service) ->
 # returns an array with service dependencies, input for the topsort algorithm
 toTopsortArray = (doc) ->
   arr = []
-  for service in Object.keys doc when service not in ['name', 'version', 'pic', 'description']
+  for service in Object.keys doc
     deps = getDependencies doc, service
     arr = _.union arr, ([service, x] for x in deps)
   arr
 
-# resolves all parameters in the application definition using the passed key/value-object
-resolveParams = (appDef, parameterKey, params)->
-  stringified = JSON.stringify appDef
-  for key, value of params
-    rex = new RegExp "#{parameterKey}#{key}#{parameterKey}", 'g'
-    stringified = stringified.replace rex, value
-  JSON.parse stringified
 
-resolveParametersAndCreateSortedAppdef = (appDef, parameterKey, params) ->
-  definition = resolveParams appDef, parameterKey, params
+createSortedAppdef = (definition) ->
   orderedServices = topsort(toTopsortArray definition).reverse()
   services = {}
-  services.name = appDef.name
-  services.version = appDef.version
-  services.pic = appDef.pic
-  services.description = appDef.description
   services[service] = definition[service] for service in orderedServices
   services
 
@@ -78,7 +66,7 @@ module.exports = (agentInfo) ->
     data = req.body
     if data.app and data.instance
       data.app._definition = data.app.definition
-      data.app.definition = resolveParametersAndCreateSortedAppdef data.app._definition, data.app.parameter_key, data.instance.parameters
+      data.app.definition = createSortedAppdef data.app._definition
       eventEmitter.emit action, data
       res.status(200).end('thanks')
     else res.status(422).end 'appInfo not provided'
