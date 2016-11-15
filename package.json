@@ -1,6 +1,6 @@
 {
   "name": "docker-dashboard-agent-api",
-  "version": "4.5.0-dev",
+  "version": "4.5.0",
   "description": "Implementation of the dashboard agent API.",
   "main": "index.coffee",
   "scripts": {
