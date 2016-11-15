@@ -76,7 +76,10 @@ module.exports = (agentInfo) ->
   app.post '/app/start', authenticate, run('start')
   app.post '/app/stop', authenticate, run('stop')
 
-  app.get '/storage/list', authenticate, emit '/storage/list'
+  app.get '/datastore/usage', authenticate, emit '/datastore/usage'
+
+  app.get '/storage/list', authenticate, emit '/storage/list'  
+  app.get '/storage/:name/size', authenticate, emit '/storage/size'
   app.delete '/storage/:name', authenticate, emit '/storage/delete'
   app.put '/storage', authenticate, emit '/storage/create'
 
