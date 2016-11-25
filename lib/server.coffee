@@ -35,8 +35,6 @@ createSortedAppdef = (definition) ->
 
 module.exports = (agentInfo) ->
   httpPort        = process.env.HTTP_PORT or 80
-  dockerSocket    = process.env.DOCKER_SOCKET_PATH or '/var/run/docker.sock'
-  dockerHost      = process.env.DOCKER_HOST
   authToken       = process.env.AUTH_TOKEN
 
   unless authToken
